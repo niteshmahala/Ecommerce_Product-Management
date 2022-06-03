@@ -1,26 +1,24 @@
 const express = require('express');
-const bodyparser = require('body-parser');
-const {default: mongoose} = require('mongoose')
-const rout = require('./routes/route.js')
-const app = express()
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const multer = require('multer');
+const route = require('./routes/route');
 
-app.use(bodyparser.json())
-app.use(bodyparser.urlencoded({ extended:true}))
+const app = express();
+const upload = multer();
 
-mongoose.connect(config,{
-    useNewUrlParser: true,
+app.use(upload.any());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb+srv://Uranium-Batch:aruSjkdGdfhc9MRK@functionup.eel5r.mongodb.net/group45Database?retryWrites=true&w=majority', {
+  useNewUrlParser: true
 })
-.then(()=> console.log("mongodb is connected"))
-.catch(err=> console.log(err))
+.then(() => console.log("Connected to MongoDB"))
+.catch(err => console.log("Error connecting to mongoDB: ", err));
 
-app.use('/', route)
+app.use('/', route);
 
-app.listen(process.env.PORT || 3000 , function ()
-{
-    console.log("express app running on" +( process.env.PORT || 3000))
-});
-
-
-
-
-
+app.listen(process.env.PORT || 3000, function() {
+  console.log('Application is running at PORT:',process.env.PORT||3000)
+})
