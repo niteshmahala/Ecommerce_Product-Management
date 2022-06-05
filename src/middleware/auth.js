@@ -6,7 +6,7 @@ const authentication = (req, res, next) => {
   try {
     let bearerHeader = req.headers.authorization;
     if(typeof bearerHeader == "undefined") return res.status(400).send({ status: false, message: "Token is missing" });
-
+    
     let bearerToken = bearerHeader.split(' ')
     let token = bearerToken[1];
     jwt.verify(token, "Products-Management", function (err,data) {
@@ -26,7 +26,7 @@ const authorization = async (req, res, next) => {
   try {
     let loggedInUser = req.decodedToken.userId;
     let loginUser;
-
+    
     if(req.params?.userId){
       if(!validate.isValidObjectId(req.params.userId)) return res.status(400).send({ status: false, message: "Enter a valid user Id" })
       let checkUserId = await User.findById(req.params.userId);

@@ -67,7 +67,7 @@ const createOrder = async (req, res) => {
       {_id: findCart._id},
       {items: [], totalPrice: 0, totalItems: 0}
     )
-    res.status(201).send({ status: false, message: "Order placed successfully", data: resData });
+    res.status(201).send({ status: true, message: "Success", data: resData });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message })
   }
@@ -109,7 +109,7 @@ const updateOrder = async (req, res) => {
       conditions,
       {new: true}
     )
-    res.status(200).send({ status: true, message: "Order updated Successfully", data: resData });
+    res.status(200).send({ status: true, message: "Success", data: resData });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message })
   }

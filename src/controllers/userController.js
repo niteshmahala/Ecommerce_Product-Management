@@ -14,7 +14,7 @@ const createUser = async (req, res) => {
 
     //checking for fname
     if (validate.isValid(data.fname)) return res.status(400).send({ status: false, message: "First name is required and should not be an empty string" });
- 
+
     //checking for lname
     if (validate.isValid(data.lname)) return res.status(400).send({ status: false, message: "Last name is required and should not be an empty string" });
 
@@ -134,7 +134,7 @@ const loginUser = async function (req, res) {
     if (!actualPassWord) return res.status(400).send({ status: false, message: "Incorrect password" })
 
     // Token Generation
-    let token = jwt.sign({ userId: user._id }, "Products-Management", {expiresIn: '1000000d'});
+    let token = jwt.sign({ userId: user._id }, "Products-Management", {expiresIn: '1d'});
 
     res.status(200).send({ status: true, message: "User login successfully", data: { userId: user._id, token: token } })
   }catch (err) {
@@ -187,10 +187,13 @@ const updateUserProfile = async (req, res) => {
       //validating lname
       if (validate.isValidString(data.lname)) return res.status(400).send({ status: false, message: "Enter a valid last name and should not contain numbers" });
     }
+
     //validating user email-id
     if (data?.email && (!validate.isValidEmail(data.email))) return res.status(400).send({ status: false, message: "Enter a valid email-id" });
+
     //validating user phone number
     if (data?.phone && (!validate.isValidPhone(data.phone))) return res.status(400).send({ status: false, message: "Enter a valid phone number" });
+
     if(data?.password || typeof data.password == 'string') {
     //validating user password
       if (!validate.isValidPwd(data.password)) return res.status(400).send({ status: false, message: "Password should be 8-15 characters long and must contain one of 0-9,A-Z,a-z and special characters" });
@@ -206,9 +209,11 @@ const updateUserProfile = async (req, res) => {
     //checking if phone number already exist or not
     let checkPhone = await User.findOne({ phone: data.phone });
     if (checkPhone) return res.status(400).send({ status: false, message: "Phone number already exist" });
+
     if(data?.address) {
       //validating the address
       if (validate.isValid(data.address)) return res.status(400).send({ status: false, message: "Address should be in object and must contain shipping and billing addresses" });
+
       //converting string to JSON
       data.address = JSON.parse(data.address)
       
@@ -217,13 +222,17 @@ const updateUserProfile = async (req, res) => {
       if(data.address?.shipping) {
         //validating the shipping address
         if (validate.isValid(data.address.shipping)) return res.status(400).send({ status: false, message: "Shipping address should be in object and must contain street, city and pincode" });
+
         if(data.address.shipping?.street){
           if (validate.isValid(data.address.shipping.street)) return res.status(400).send({ status: false, message: "Street of shipping address should be valid and not an empty string" });
+
           tempAddress.shipping.street = data.address.shipping.street 
         }
+
         //checking for city shipping address
         if (data.address.shipping?.city) {
           if (validate.isValid(data.address.shipping.city)) return res.status(400).send({ status: false, message: "City of shipping address should be valid and not an empty string" });
+
           tempAddress.shipping.city = data.address.shipping.city
         }
 
@@ -248,9 +257,11 @@ const updateUserProfile = async (req, res) => {
 
           tempAddress.billing.street = data.address.billing.street 
         }
+
         //checking for city billing address
         if (data.address.billing?.city) {
           if (validate.isValid(data.address.billing.city)) return res.status(400).send({ status: false, message: "City of billing address should be valid and not an empty string" });
+
           tempAddress.billing.city = data.address.billing.city
         }
 
@@ -261,11 +272,14 @@ const updateUserProfile = async (req, res) => {
           if (!validate.isValidString(data.address.billing.pincode)) return res.status(400).send({ status: false, message: "Pincode should be in numbers" });
 
           if (!validate.isValidPincode(data.address.billing.pincode)) return res.status(400).send({ status: false, message: "Enter a valid pincode" });
+
           tempAddress.billing.pincode = data.address.billing.pincode;
         }
       }
+
       data.address = tempAddress;
     }
+
     let updateUser = await User.findOneAndUpdate(
       {_id: userId},
       data,
@@ -276,5 +290,6 @@ const updateUserProfile = async (req, res) => {
     res.status(500).send({ status: false, error: err.message })
   }
 }
+
 module.exports = { createUser, loginUser,  getUser, updateUserProfile }
 

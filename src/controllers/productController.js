@@ -18,7 +18,7 @@ const addProduct = async (req, res) => {
     if(checkTitle) return res.status(400).send({ status: false, message: "Title already exist" });
 
     //checking for product description
-    if(validate.isValid(data.description) && validate.isValidString(data.description)) return res.status(400).send({ status: false, message: "Title is required and should not be an empty string or any numbers in it" });
+    if(validate.isValid(data.description) && validate.isValidString(data.description)) return res.status(400).send({ status: false, message: "Description is required and should not be an empty string or any numbers in it" });
 
     //checking for product price
     if(!(validate.isValidString(data.price) && validate.isValidPrice(data.price))) return res.status(400).send({ status: false, message: "Price of product should be valid and in numbers" });
@@ -65,9 +65,15 @@ const addProduct = async (req, res) => {
     //checking for available Sizes of the products
     if(validate.isValid(data.availableSizes) && validate.isValidString(data.availableSizes))  return res.status(400).send({ status: false, message: "Enter at least one available size" });
 
-    data.availableSizes =  JSON.parse(data.availableSizes);
+    if (data.availableSizes) {
+      var availableSize = data.availableSizes.toUpperCase().split(",") // Creating an array
+      if (availableSize.length === 0) {
+        return res.status(400).send({ status: false, message: "please provide the product sizes" })
+      }
+      data.availableSizes = availableSize;
+    }
 
-    for(let i = 0;  i < data.availableSizes.length; i++){
+    for(let i = 0;  i < data.availableSizes.length; i++){ 
       if(!validate.isValidSize(data.availableSizes[i])) {
         return res.status(400).send({ status: false, message: "Sizes should one of these - 'S', 'XS', 'M', 'X', 'L', 'XXL' and 'XL'" })
       }
@@ -80,7 +86,7 @@ const addProduct = async (req, res) => {
     }
 
     let createProduct = await Product.create(data);
-    res.status(201).send({ status: true, message: "Product created successfully", data: createProduct });
+    res.status(201).send({ status: true, message: "Success", data: createProduct });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
@@ -97,7 +103,7 @@ const getFilteredProduct = async (req, res) => {
       let getProducts = await Product.find(conditions).sort({ price: 1 });
       if(getProducts.length == 0) return res.status(404).send({ status: false, message: "No products found" });
 
-      return res.status(200).send({ status: true, count: getProducts.length, message: "Product Lists", data: getProducts })
+      return res.status(200).send({ status: true, count: getProducts.length, message: "Success", data: getProducts })
     }
 
     //validating the filter - SIZE
@@ -149,7 +155,7 @@ const getFilteredProduct = async (req, res) => {
     let getFilterData = await Product.find(conditions).sort({ price: 1 })
     if(getFilterData.length == 0) return res.status(404).send({ status: false, message: "No products found" });
 
-    res.status(200).send({ status: true, count: getFilterData.length, message: "Product lists", data: getFilterData })
+    res.status(200).send({ status: true, count: getFilterData.length, message: "Success", data: getFilterData })
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
@@ -168,7 +174,7 @@ const getProductsById = async (req, res) => {
     const product = await Product.findOne({ _id: productId, isDeleted:false})
     if(!product) return res.status(404).send({ status: false, message:"No product found"})
 
-    return res.status(200).send({ status: true, message: 'success', data: product})
+    return res.status(200).send({ status: true, message: 'Success', data: product})
   } catch (err) {
     res.status(500).send({ status: false, error: err.message })
   }

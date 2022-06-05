@@ -51,7 +51,7 @@ const addCart = async (req, res) => {
       createData.totalItems = createData.items.length;
       await Cart.create(createData);
       let resData = await Cart.findOne({ userId }).populate('items.productId')
-      return res.status(201).send({ status: true, message: "Products added to the cart", data: resData })
+      return res.status(201).send({ status: true, message: "Success", data: resData })
     }
 
     if(!validate.isValidObjectId(data.productId)) return res.status(400).send({ status: false, message: "Enter a valid product Id" });
@@ -90,16 +90,15 @@ const addCart = async (req, res) => {
       tempCart.totalPrice += checkProduct.price * data.quantity
     }
 
-    
     tempCart.totalPrice = tempCart.totalPrice.toFixed(2);
     tempCart.totalItems = tempCart.items.length
 
     let updateCart = await Cart.findByIdAndUpdate(
       {_id: checkCart._id},
-      tempCart,
+      tempCart, 
       {new: true}
     ).populate('items.productId')
-    res.status(200).send({ status: true, message: "Products added to the cart", data: updateCart })
+    res.status(201).send({ status: true, message: "Success", data: updateCart })
   } catch (err) {
     res.status(500).send({ status: false, error: err.message })
   }
@@ -186,9 +185,9 @@ const updateCart = async (req, res) => {
       {_id: findCart._id},
       tempCart,
       {new: true}
-    )
+    ).populate('items.productId')
 
-    res.status(200).send({ status: true, message: "Cart Updated Successfully", data: getUpdatedCart });
+    res.status(200).send({ status: true, message: "Success", data: getUpdatedCart });
   } catch (err) {
     res.status(500).send({ status: false, error: err.message });
   }
@@ -202,7 +201,7 @@ const getCart = async (req, res) =>{
     let findCart = await Cart.findOne({ userId: userId }).populate('items.productId');
     if(!findCart) return res.status(404).send({ status: false, message: `No cart found with this "${userId}" userId` });
 
-    res.status(200).send({ status: true, message: "Cart Details", data: findCart })
+    res.status(200).send({ status: true, message: "Success", data: findCart })
   } catch (err) {
     res.status(500).send({ status: false, error: err.message })
   }
@@ -219,13 +218,12 @@ const deleteCart = async (req, res) =>{
     //checking for an empty cart
     if(findCart.items.length == 0) return res.status(400).send({ status: false, message: "Cart is already empty" });
 
-    let delCart = await Cart.findByIdAndUpdate(
+    await Cart.updateOne(
       {_id: findCart._id},
       {items: [], totalPrice: 0, totalItems: 0},
-      {new: true}
     )
 
-    res.status(200).send({ status: true, message: "Products removed successfully", data: delCart })
+    res.status(204).send({ status: true, message: "Success"})
   } catch (err) {
     res.status(500).send({ status: false, error: err.message })
   }
